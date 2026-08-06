@@ -1,0 +1,558 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+enum TCStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  GENERATED
+}
+
+enum TCReason {
+  TRANSFER
+  PASSED_OUT
+  PARENT_REQUEST
+  DISCIPLINARY
+  OTHER
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  SCHOOL_ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  LEAVE
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+model School {
+  id String @id @default(cuid())
+
+  name String
+
+  code String @unique
+
+  email String?
+
+  phone String?
+
+  address String?
+
+  logo String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  users User[]
+
+  teachers Teacher[]
+
+  students Student[]
+
+  sessions AcademicSession[]
+
+  classes     AcademicClass[]
+  sections    Section[]
+  subjects    Subject[]
+  timetables  Timetable[]
+  attendances Attendance[]
+  Homework    Homework[]
+  leaves Leave[]
+  transferCertificates TransferCertificate[]
+}
+
+model User {
+  id String @id @default(cuid())
+
+  firstName String
+  lastName  String
+
+  email    String @unique
+  password String
+
+  phone String?
+
+  isActive Boolean @default(true)
+
+  role UserRole
+
+  schoolId String
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  // Teacher Relations
+  teacherHomeworks Homework[] @relation("TeacherHomework")
+
+  // Student Relations
+  studentHomeworkSubmissions HomeworkSubmission[] @relation("StudentHomeworkSubmission")
+leaves Leave[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tcRequests TransferCertificate[] @relation("TeacherTC")
+
+transferCertificates TransferCertificate[] @relation("StudentTC")
+}
+
+model Teacher {
+  id String @id @default(cuid())
+
+  employeeId String @unique
+
+  firstName String
+
+  lastName String
+
+  email String @unique
+
+  phone String?
+
+  gender Gender
+
+  qualification String?
+
+  experience Int?
+
+  joiningDate DateTime
+
+  salary Float?
+
+  schoolId         String
+  photo            String?
+  assignedClasses  TeacherClass[]
+  assignedSubjects TeacherSubject[]
+  assignedSections TeacherSection[]
+  attendances      Attendance[]
+  timetables       Timetable[]
+  address          String?
+
+  isActive Boolean @default(true)
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Student {
+  id String @id @default(cuid())
+
+  admissionNo String @unique
+
+  rollNumber Int
+
+  firstName String
+
+  lastName String
+
+  email String? @unique
+
+  password String?
+
+  phone String?
+
+  gender Gender
+
+  dob DateTime
+
+  admissionDate DateTime
+
+  address String?
+
+  city String?
+
+  state String?
+
+  pincode String?
+
+  profileImage String?
+
+  tcFile String?
+
+  isActive Boolean @default(true)
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  classId       String
+  academicClass AcademicClass @relation(fields: [classId], references: [id])
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  attendances Attendance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AcademicClass {
+  id          String  @id @default(cuid())
+  name        String
+  code        String  @unique
+  description String?
+
+  maximumStudents Int @default(50)
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  academicSessionId String
+  academicSession   AcademicSession @relation(fields: [academicSessionId], references: [id])
+
+  students           Student[]
+  sections           Section[]
+  subjects           Subject[]
+  teacherAssignments TeacherClass[]
+  attendances        Attendance[]
+  timetables         Timetable[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  Homework           Homework[]
+}
+
+model Section {
+  id String @id @default(cuid())
+
+  name String
+
+  code String
+
+  classId String
+
+  schoolId String
+
+  academicClass AcademicClass @relation(fields: [classId], references: [id])
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  students           Student[]
+  teacherAssignments TeacherSection[]
+  attendances        Attendance[]
+  timetables         Timetable[]
+  createdAt          DateTime         @default(now())
+
+  updatedAt DateTime   @updatedAt
+  Homework  Homework[]
+}
+
+model Subject {
+  id          String  @id @default(cuid())
+  name        String
+  code        String  @unique
+  description String?
+
+  isActive Boolean @default(true)
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  classId            String
+  academicClass      AcademicClass    @relation(fields: [classId], references: [id])
+  teacherAssignments TeacherSubject[]
+  timetables         Timetable[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  Homework           Homework[]
+}
+
+model AcademicSession {
+  id          String   @id @default(cuid())
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(false)
+  description String?
+
+  schoolId String
+  school   School          @relation(fields: [schoolId], references: [id])
+  classes  AcademicClass[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeacherClass {
+  id String @id @default(cuid())
+
+  teacherId String
+  classId   String
+
+  teacher       Teacher       @relation(fields: [teacherId], references: [id])
+  academicClass AcademicClass @relation(fields: [classId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([teacherId, classId])
+}
+
+model TeacherSubject {
+  id String @id @default(cuid())
+
+  teacherId String
+  subjectId String
+
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([teacherId, subjectId])
+}
+
+model TeacherSection {
+  id String @id @default(cuid())
+
+  teacherId String
+  sectionId String
+
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+  section Section @relation(fields: [sectionId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([teacherId, sectionId])
+}
+
+model Attendance {
+  id String @id @default(cuid())
+
+  date DateTime
+
+  status AttendanceStatus
+
+  remarks String?
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+
+  teacherId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
+
+  classId       String
+  academicClass AcademicClass @relation(fields: [classId], references: [id])
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, date])
+}
+
+model Timetable {
+  id String @id @default(cuid())
+
+  day DayOfWeek
+
+  startTime String
+
+  endTime String
+
+  roomNo String?
+
+  teacherId String
+  classId   String
+  sectionId String
+  subjectId String
+  schoolId  String
+
+  teacher Teacher @relation(fields: [teacherId], references: [id])
+
+  academicClass AcademicClass @relation(fields: [classId], references: [id])
+
+  section Section @relation(fields: [sectionId], references: [id])
+
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([teacherId])
+  @@index([classId])
+  @@index([sectionId])
+  @@index([schoolId])
+}
+
+model Homework {
+  id String @id @default(cuid())
+
+  title       String
+  description String?
+
+  attachment String?
+  videoUrl   String?
+
+  dueDate DateTime
+
+  status HomeworkStatus @default(ACTIVE)
+
+  schoolId  String
+  classId   String
+  sectionId String
+  subjectId String
+  teacherId String
+
+  school        School        @relation(fields: [schoolId], references: [id])
+  academicClass AcademicClass @relation(fields: [classId], references: [id])
+  section       Section       @relation(fields: [sectionId], references: [id])
+  subject       Subject       @relation(fields: [subjectId], references: [id])
+
+  teacher User @relation("TeacherHomework", fields: [teacherId], references: [id])
+
+  submissions HomeworkSubmission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HomeworkSubmission {
+  id String @id @default(cuid())
+
+  homeworkId String
+  studentId  String
+
+  attachment String?
+  remarks    String?
+  marks      Int?
+
+  status SubmissionStatus @default(PENDING)
+
+  submittedAt DateTime?
+
+  homework Homework @relation(fields: [homeworkId], references: [id])
+
+  student User @relation("StudentHomeworkSubmission", fields: [studentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum HomeworkStatus {
+  ACTIVE
+
+  CLOSED
+}
+
+enum SubmissionStatus {
+  PENDING
+
+  SUBMITTED
+
+  CHECKED
+}
+enum LeaveType {
+  CASUAL
+  MEDICAL
+  EMERGENCY
+  HALF_DAY
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Leave {
+  id          String        @id @default(cuid())
+
+  title       String
+  reason      String
+
+  leaveType   LeaveType
+  status      LeaveStatus   @default(PENDING)
+
+  fromDate    DateTime
+  toDate      DateTime
+
+  attachment  String?
+
+  approvedAt  DateTime?
+  approvedBy  String?
+
+  userId       String
+  schoolId     String
+
+  user         User    @relation(fields: [userId], references: [id])
+  school       School  @relation(fields: [schoolId], references: [id])
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+model TransferCertificate {
+
+  id String @id @default(cuid())
+
+  tcNumber String @unique
+
+  studentId String
+  teacherId String
+  schoolId String
+
+  reason TCReason
+
+  description String?
+
+  status TCStatus @default(PENDING)
+
+  documentUrl String?
+
+  pdfUrl String?
+
+  qrCode String?
+
+  remarks String?
+
+  approvedBy String?
+
+  approvedAt DateTime?
+
+  generatedAt DateTime?
+
+  student User @relation("StudentTC", fields: [studentId], references: [id])
+
+  teacher User @relation("TeacherTC", fields: [teacherId], references: [id])
+
+  school School @relation(fields: [schoolId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+}

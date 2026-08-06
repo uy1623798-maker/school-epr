@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import "../styles/theme.css";
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  --card: #ffffff;
+  --card-border: #e2e8f0;
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #dc2626;
+
+  --muted: #64748b;
+}
+body{
+    background:#f8fafc;
+    color:#0f172a;
+}
+
+*{
+    transition:0.2s;
+}
+html{
+scroll-behavior:smooth;
+}
+
+body{
+transition:0.35s;
+}
+
+.dark{
+background:#020617;
+color:white;
+}
