@@ -26,7 +26,31 @@ export class StudentRepository {
       }
     });
   }
-
+async findByClassAndSection(
+  classId: string,
+  sectionId: string,
+) {
+  return prisma.student.findMany({
+    where: {
+      classId,
+      sectionId,
+      isActive: true,
+    },
+    select: {
+      id: true,
+      admissionNo: true,
+      rollNumber: true,
+      firstName: true,
+      lastName: true,
+      profileImage: true,
+      classId: true,
+      sectionId: true,
+    },
+    orderBy: {
+      rollNumber: "asc",
+    },
+  });
+}
   async findById(id: string) {
     return prisma.student.findUnique({
       where: { id },

@@ -65,8 +65,19 @@ export class StudentService {
   async getStudents() {
     return repository.findAll();
   }
+async getStudentsByClassAndSection(
+  classId: string,
+  sectionId: string,
+) {
+  if (!classId || !sectionId) {
+    throw new Error("Class ID and section ID are required.");
+  }
 
-  async getStudent(id: string) {
+  return repository.findByClassAndSection(
+    classId,
+    sectionId,
+  );
+}  async getStudent(id: string) {
     return repository.findById(id);
   }
 

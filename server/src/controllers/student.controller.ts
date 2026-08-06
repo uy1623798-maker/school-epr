@@ -41,7 +41,44 @@ export class StudentController {
     });
 
   }
+async getByClassAndSection(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const classId =
+      typeof req.query.classId === "string"
+        ? req.query.classId
+        : "";
 
+    const sectionId =
+      typeof req.query.sectionId === "string"
+        ? req.query.sectionId
+        : "";
+
+    const students =
+      await service.getStudentsByClassAndSection(
+        classId,
+        sectionId,
+      );
+
+    return res.status(200).json({
+      success: true,
+      message: "Students fetched successfully.",
+      data: students,
+    });
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unable to fetch students.";
+
+    return res.status(400).json({
+      success: false,
+      message,
+    });
+  }
+}
   async getById(req: Request, res: Response) {
 
     const student = await service.getStudent(req.params.id);
