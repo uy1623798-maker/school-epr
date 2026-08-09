@@ -59,7 +59,7 @@ export class TeacherController {
   async getById(req: Request, res: Response) {
     try {
 
-      const teacher = await service.getTeacher(req.params.id);
+      const teacher = await service.getTeacher((req.params.id as string));
 
       return res.status(200).json({
         success: true,
@@ -82,7 +82,7 @@ export class TeacherController {
 
       const profileImage = req.file?.filename;
 
-      const teacher = await service.updateTeacher(req.params.id, {
+      const teacher = await service.updateTeacher((req.params.id as string), {
         ...req.body,
         profileImage,
       });
@@ -107,7 +107,7 @@ export class TeacherController {
   async delete(req: Request, res: Response) {
     try {
 
-      await service.deleteTeacher(req.params.id);
+      await service.deleteTeacher((req.params.id as string));
 
       return res.status(200).json({
         success: true,

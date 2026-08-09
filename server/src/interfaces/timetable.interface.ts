@@ -1,6 +1,7 @@
-export interface CreateTimetableDTO {
+import type { DayOfWeek } from "@prisma/client";
 
-  day: string;
+export interface CreateTimetableDTO {
+  day: DayOfWeek;
 
   startTime: string;
 
@@ -17,12 +18,10 @@ export interface CreateTimetableDTO {
   subjectId: string;
 
   schoolId: string;
-
 }
 
 export interface UpdateTimetableDTO {
-
-  day?: string;
+  day?: DayOfWeek;
 
   startTime?: string;
 
@@ -37,5 +36,4 @@ export interface UpdateTimetableDTO {
   sectionId?: string;
 
   subjectId?: string;
-
 }

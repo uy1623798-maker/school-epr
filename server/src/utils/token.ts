@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 
 export interface JwtPayload {
   id: string;
@@ -7,18 +7,27 @@ export interface JwtPayload {
 }
 
 export const generateToken = (payload: JwtPayload): string => {
-  return jwt.sign(
-    payload,
-    process.env.JWT_SECRET as string,
-    {
-      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-    }
-  );
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET is not configured.");
+  }
+
+  const expiresIn = (
+    process.env.JWT_EXPIRES_IN ?? "7d"
+  ) as SignOptions["expiresIn"];
+
+  return jwt.sign(payload, secret, {
+    expiresIn,
+  });
 };
 
 export const verifyToken = (token: string): JwtPayload => {
-  return jwt.verify(
-    token,
-    process.env.JWT_SECRET as string
-  ) as JwtPayload;
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET is not configured.");
+  }
+
+  return jwt.verify(token, secret) as JwtPayload;
 };

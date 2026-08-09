@@ -39,7 +39,7 @@ export class AcademicSessionController {
 
   async getById(req: Request, res: Response) {
 
-    const session = await service.getSession(req.params.id);
+    const session = await service.getSession((req.params.id as string));
 
     return res.json({
       success: true,
@@ -51,7 +51,7 @@ export class AcademicSessionController {
   async update(req: Request, res: Response) {
 
     const session = await service.updateSession(
-      req.params.id,
+      (req.params.id as string),
       req.body
     );
 
@@ -65,7 +65,7 @@ export class AcademicSessionController {
 
   async delete(req: Request, res: Response) {
 
-    await service.deleteSession(req.params.id);
+    await service.deleteSession((req.params.id as string));
 
     return res.json({
       success: true,

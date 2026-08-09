@@ -77,7 +77,7 @@ export class TeacherAssignmentController {
 
       const result =
         await service.getTeacherAssignments(
-          req.params.teacherId
+          (req.params.teacherId as string)
         );
 
       return res.status(200).json({
@@ -109,7 +109,7 @@ export class TeacherAssignmentController {
 
       const result =
         await service.updateAssignments(
-          req.params.teacherId,
+          (req.params.teacherId as string),
           validatedData
         );
 
@@ -139,7 +139,7 @@ export class TeacherAssignmentController {
     try {
 
       await service.deleteAssignments(
-        req.params.teacherId
+        (req.params.teacherId as string)
       );
 
       return res.status(200).json({

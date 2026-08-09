@@ -39,7 +39,7 @@ export class ClassController {
 
   async getById(req: Request, res: Response) {
 
-    const data = await service.getClass(req.params.id);
+    const data = await service.getClass((req.params.id as string));
 
     return res.json({
       success: true,
@@ -51,7 +51,7 @@ export class ClassController {
   async update(req: Request, res: Response) {
 
     const data = await service.updateClass(
-      req.params.id,
+      (req.params.id as string),
       req.body
     );
 
@@ -64,7 +64,7 @@ export class ClassController {
 
   async delete(req: Request, res: Response) {
 
-    await service.deleteClass(req.params.id);
+    await service.deleteClass((req.params.id as string));
 
     return res.json({
       success: true,

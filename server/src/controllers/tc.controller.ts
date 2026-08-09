@@ -115,7 +115,7 @@ export class TCController {
     try {
 
       const tc =
-        await service.getById(req.params.id);
+        await service.getById((req.params.id as string));
 
       return res.json({
 
@@ -153,7 +153,7 @@ export class TCController {
       const tc =
         await service.update(
 
-          req.params.id,
+          (req.params.id as string),
 
           validated
 
@@ -192,7 +192,7 @@ export class TCController {
     try {
 
       const result =
-        await service.delete(req.params.id);
+        await service.delete((req.params.id as string));
 
       return res.json(result);
 
@@ -221,7 +221,7 @@ export class TCController {
       const tc =
         await service.approve(
 
-          req.params.id,
+          (req.params.id as string),
 
           (req as any).user.id
 
@@ -262,7 +262,7 @@ export class TCController {
       const tc =
         await service.reject(
 
-          req.params.id,
+          (req.params.id as string),
 
           (req as any).user.id,
 
@@ -338,7 +338,7 @@ async verify(req: Request, res: Response) {
 
   try {
 
-    const tc = await service.verify(req.params.id);
+    const tc = await service.verify((req.params.id as string));
 
     return res.json({
 
@@ -374,7 +374,7 @@ async download(req: Request, res: Response) {
 
   try {
 
-    const pdf = await service.download(req.params.id);
+    const pdf = await service.download((req.params.id as string));
 
     return res.download(pdf);
 

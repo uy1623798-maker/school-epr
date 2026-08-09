@@ -99,7 +99,7 @@ async create(req: Request, res: Response) {
     try {
 
       const homework =
-        await service.getById(req.params.id);
+        await service.getById((req.params.id as string));
 
       return res.status(200).json({
 
@@ -136,7 +136,7 @@ async create(req: Request, res: Response) {
 
       const homework =
         await service.update(
-          req.params.id,
+          (req.params.id as string),
           validatedData
         );
 
@@ -173,7 +173,7 @@ async create(req: Request, res: Response) {
     try {
 
       const result =
-        await service.delete(req.params.id);
+        await service.delete((req.params.id as string));
 
       return res.status(200).json(result);
 
@@ -239,7 +239,7 @@ async create(req: Request, res: Response) {
 
       const data =
         await service.teacherHomework(
-          req.params.teacherId
+          (req.params.teacherId as string)
         );
 
       return res.status(200).json({
@@ -277,7 +277,7 @@ async create(req: Request, res: Response) {
 
       const data =
         await service.studentHomework(
-          req.params.studentId
+          (req.params.studentId as string)
         );
 
       return res.status(200).json({

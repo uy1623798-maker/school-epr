@@ -1,57 +1,61 @@
 import { TeacherAssignmentRepository } from "../repositories/teacher-assignment.repository";
-import { CreateTeacherAssignmentDTO } from "../interfaces/teacher-assignment.interface";
+import {
+  CreateTeacherAssignmentDTO,
+  UpdateTeacherAssignmentDTO,
+} from "../interfaces/teacher-assignment.interface";
 
-const repository = new TeacherAssignmentRepository();
+const repository =
+  new TeacherAssignmentRepository();
 
 export class TeacherAssignmentService {
-
-  // ======================================
-  // CREATE ASSIGNMENTS
-  // ======================================
-
-  async createAssignments(data: CreateTeacherAssignmentDTO) {
-
-    const teacher = await repository.teacherExists(data.teacherId);
+  async createAssignments(
+    data: CreateTeacherAssignmentDTO,
+  ) {
+    const teacher =
+      await repository.teacherExists(
+        data.teacherId,
+      );
 
     if (!teacher) {
       throw new Error("Teacher not found.");
     }
 
     for (const assignment of data.assignments) {
-
-      const academicClass = await repository.classExists(
-        assignment.classId
-      );
+      const academicClass =
+        await repository.classExists(
+          assignment.classId,
+        );
 
       if (!academicClass) {
         throw new Error("Class not found.");
       }
 
-      const section = await repository.sectionExists(
-        assignment.sectionId
-      );
+      const section =
+        await repository.sectionExists(
+          assignment.sectionId,
+        );
 
       if (!section) {
         throw new Error("Section not found.");
       }
 
-      const subject = await repository.subjectExists(
-        assignment.subjectId
-      );
+      const subject =
+        await repository.subjectExists(
+          assignment.subjectId,
+        );
 
       if (!subject) {
         throw new Error("Subject not found.");
       }
 
-      // Same School Validation
-
       if (
-        teacher.schoolId !== academicClass.schoolId ||
+        teacher.schoolId !==
+          academicClass.schoolId ||
         teacher.schoolId !== section.schoolId ||
         teacher.schoolId !== subject.schoolId
       ) {
         throw new Error(
-          "Teacher, Class, Section and Subject must belong to the same school."
+          "Teacher, Class, Section and Subject must belong to the same school.",
         );
       }
 
@@ -60,7 +64,7 @@ export class TeacherAssignmentService {
           data.teacherId,
           assignment.classId,
           assignment.sectionId,
-          assignment.subjectId
+          assignment.subjectId,
         );
 
       if (alreadyAssigned) {
@@ -71,39 +75,27 @@ export class TeacherAssignmentService {
         data.teacherId,
         assignment.classId,
         assignment.sectionId,
-        assignment.subjectId
+        assignment.subjectId,
       );
-
     }
 
     return {
       success: true,
-      message: "Teacher Assignments Created Successfully"
+      message:
+        "Teacher Assignments Created Successfully",
     };
-
   }
-
-  // ======================================
-  // GET ALL
-  // ======================================
 
   async getAllAssignments() {
-
     return repository.getAllAssignments();
-
   }
 
-  // ======================================
-  // GET ONE
-  // ======================================
-
   async getTeacherAssignments(
-    teacherId: string
+    teacherId: string,
   ) {
-
     const teacher =
       await repository.getTeacherAssignments(
-        teacherId
+        teacherId,
       );
 
     if (!teacher) {
@@ -111,40 +103,28 @@ export class TeacherAssignmentService {
     }
 
     return teacher;
-
   }
-
-  // ======================================
-  // UPDATE
-  // ======================================
 
   async updateAssignments(
     teacherId: string,
-    data: CreateTeacherAssignmentDTO
+    data: UpdateTeacherAssignmentDTO,
   ) {
-
     await repository.deleteAssignments(
-      teacherId
+      teacherId,
     );
 
     return this.createAssignments({
       teacherId,
-      assignments: data.assignments
+      assignments: data.assignments,
     });
-
   }
 
-  // ======================================
-  // DELETE
-  // ======================================
-
   async deleteAssignments(
-    teacherId: string
+    teacherId: string,
   ) {
-
     const teacher =
       await repository.teacherExists(
-        teacherId
+        teacherId,
       );
 
     if (!teacher) {
@@ -152,14 +132,13 @@ export class TeacherAssignmentService {
     }
 
     await repository.deleteAssignments(
-      teacherId
+      teacherId,
     );
 
     return {
       success: true,
-      message: "Assignments Deleted Successfully"
+      message:
+        "Assignments Deleted Successfully",
     };
-
   }
-
 }

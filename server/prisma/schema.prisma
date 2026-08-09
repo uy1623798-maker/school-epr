@@ -107,7 +107,7 @@ model User {
   schoolId String
 
   school School @relation(fields: [schoolId], references: [id])
-
+teacherProfile Teacher?
   // Teacher Relations
   teacherHomeworks Homework[] @relation("TeacherHomework")
 
@@ -152,7 +152,13 @@ model Teacher {
   attendances      Attendance[]
   timetables       Timetable[]
   address          String?
+userId String? @unique
 
+user User? @relation(
+  fields: [userId],
+  references: [id],
+  onDelete: SetNull
+)
   isActive Boolean @default(true)
 
   school School @relation(fields: [schoolId], references: [id])

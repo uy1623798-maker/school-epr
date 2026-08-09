@@ -33,7 +33,7 @@ export class AttendanceController {
 
   async getStudentAttendance(req: Request, res: Response) {
     try {
-      const studentIdParam = req.params.studentId;
+      const studentIdParam = (req.params.studentId as string);
 
       const studentId = Array.isArray(studentIdParam)
         ? studentIdParam[0]
