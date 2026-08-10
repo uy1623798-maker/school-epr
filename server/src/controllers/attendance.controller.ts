@@ -8,10 +8,20 @@ const service = new AttendanceService();
 export class AttendanceController {
   async bulkAttendance(req: Request, res: Response) {
     try {
+      if (!req.user?.schoolId || !req.user.teacherId) {
+        return res.status(403).json({
+          success: false,
+          message: "A linked teacher account is required to mark attendance.",
+        });
+      }
+
       const validatedData = bulkAttendanceSchema.parse(req.body);
 
-      const result =
-        await service.markBulkAttendance(validatedData);
+      const result = await service.markBulkAttendance({
+        ...validatedData,
+        teacherId: req.user.teacherId,
+        schoolId: req.user.schoolId,
+      });
 
       return res.status(201).json({
         success: true,

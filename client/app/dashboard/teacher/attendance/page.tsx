@@ -6,8 +6,10 @@ import ClassSelector from "@/components/teachers/attendance/ClassSelector";
 import StudentAttendanceList from "@/components/teachers/attendance/StudentAttendanceList";
 
 export interface SelectedClass {
+  classId: string;
   className: string;
-  section: string;
+  sectionId: string;
+  sectionName: string;
 }
 
 export default function TeacherAttendancePage() {
@@ -29,7 +31,10 @@ export default function TeacherAttendancePage() {
       <ClassSelector onSelect={setSelectedClass} />
 
       {selectedClass ? (
-        <StudentAttendanceList selectedClass={selectedClass} />
+        <StudentAttendanceList
+          key={`${selectedClass.classId}:${selectedClass.sectionId}`}
+          selectedClass={selectedClass}
+        />
       ) : (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
           <p className="text-lg font-semibold text-slate-700">
