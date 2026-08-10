@@ -1,16 +1,23 @@
-
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import {
   CheckCircle2,
   Clock3,
+  LoaderCircle,
   Save,
   XCircle,
 } from "lucide-react";
 
-import type { SelectedClass } from "@/app/dashboard/teacher/attendance/page";
 
+
+import type { SelectedClass } from "@/app/dashboard/teacher/attendance/page";
+import {
+  saveAttendance,
+  getStudents,
+  getToken,
+} from "@/lib/api";
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE";
 
 interface StudentAttendanceListProps {
