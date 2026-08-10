@@ -55,11 +55,18 @@ export class AuthService {
       id: user.id,
       email: user.email,
       role: user.role,
+      schoolId: user.schoolId,
+      teacherId: user.teacherProfile?.id,
     });
+
+    const { password, teacherProfile, ...safeUser } = user;
 
     return {
       token,
-      user,
+      user: {
+        ...safeUser,
+        teacherId: teacherProfile?.id ?? null,
+      },
     };
   }
 
@@ -92,11 +99,18 @@ export class AuthService {
       id: user.id,
       email: user.email,
       role: user.role,
+      schoolId: user.schoolId,
+      teacherId: user.teacherProfile?.id,
     });
+
+    const { password, teacherProfile, ...safeUser } = user;
 
     return {
       token,
-      user,
+      user: {
+        ...safeUser,
+        teacherId: teacherProfile?.id ?? null,
+      },
     };
   }
 }

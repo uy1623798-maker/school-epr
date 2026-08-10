@@ -6,12 +6,18 @@ export class AuthRepository {
       where: {
         email,
       },
+      include: {
+        teacherProfile: true,
+      },
     });
   }
 
   async createUser(data: any) {
     return prisma.user.create({
       data,
+      include: {
+        teacherProfile: true,
+      },
     });
   }
 

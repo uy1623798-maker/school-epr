@@ -84,7 +84,7 @@ export class TimetableController {
     try {
 
       const timetable =
-        await service.getById(req.params.id);
+        await service.getById((req.params.id as string));
 
       return res.status(200).json({
         success: true,
@@ -115,7 +115,7 @@ export class TimetableController {
 
       const timetable =
         await service.update(
-          req.params.id,
+          (req.params.id as string),
           validatedData
         );
 
@@ -145,7 +145,7 @@ export class TimetableController {
     try {
 
       const result =
-        await service.delete(req.params.id);
+        await service.delete((req.params.id as string));
 
       return res.status(200).json(result);
 
@@ -173,7 +173,7 @@ export class TimetableController {
 
       const data =
         await service.getTeacherTimetable(
-          req.params.teacherId
+          (req.params.teacherId as string)
         );
 
       return res.status(200).json({
@@ -205,7 +205,7 @@ export class TimetableController {
 
       const data =
         await service.getClassTimetable(
-          req.params.classId
+          (req.params.classId as string)
         );
 
       return res.status(200).json({
@@ -237,7 +237,7 @@ export class TimetableController {
 
       const data =
         await service.getSectionTimetable(
-          req.params.sectionId
+          (req.params.sectionId as string)
         );
 
       return res.status(200).json({

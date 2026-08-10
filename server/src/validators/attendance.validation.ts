@@ -28,14 +28,6 @@ export const bulkAttendanceSchema = z.object({
     .datetime({ offset: true })
     .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")),
 
-  teacherId: z
-    .string()
-    .min(1, "Teacher ID is required"),
-
-  schoolId: z
-    .string()
-    .min(1, "School ID is required"),
-
   classId: z
     .string()
     .min(1, "Class ID is required"),

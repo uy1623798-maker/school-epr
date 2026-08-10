@@ -81,7 +81,7 @@ async getByClassAndSection(
 }
   async getById(req: Request, res: Response) {
 
-    const student = await service.getStudent(req.params.id);
+    const student = await service.getStudent((req.params.id as string));
 
     return res.json({
       success: true,
@@ -94,7 +94,7 @@ async getByClassAndSection(
 
     const profileImage = req.file?.filename;
 
-    const student = await service.updateStudent(req.params.id,{
+    const student = await service.updateStudent((req.params.id as string),{
       ...req.body,
       profileImage
     });
@@ -108,7 +108,7 @@ async getByClassAndSection(
 
   async delete(req: Request,res: Response){
 
-    await service.deleteStudent(req.params.id);
+    await service.deleteStudent((req.params.id as string));
 
     return res.json({
       success:true,

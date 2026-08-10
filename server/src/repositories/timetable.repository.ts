@@ -1,13 +1,11 @@
 import prisma from "../config/prisma";
 import { Prisma, DayOfWeek } from "@prisma/client";
-import { CreateTimetableDTO } from "../interfaces/timetable.interface";
+import {
+  CreateTimetableDTO,
+  UpdateTimetableDTO,
+} from "../interfaces/timetable.interface";
 
 export class TimetableRepository {
-
-  // ======================================================
-  // CREATE
-  // ======================================================
-
   async create(data: CreateTimetableDTO) {
     return prisma.timetable.create({
       data,
@@ -21,16 +19,11 @@ export class TimetableRepository {
     });
   }
 
-  // ======================================================
-  // GET ALL
-  // ======================================================
-
   async findAll(
     page = 1,
     limit = 10,
-    search?: string
+    search?: string,
   ) {
-
     const skip = (page - 1) * limit;
 
     const where: Prisma.TimetableWhereInput = {};
@@ -73,103 +66,50 @@ export class TimetableRepository {
     }
 
     const [data, total] = await Promise.all([
-
       prisma.timetable.findMany({
-
         where,
-
         skip,
-
         take: limit,
 
         include: {
-
           teacher: true,
-
           academicClass: true,
-
           section: true,
-
           subject: true,
-
-          school: true
-
+          school: true,
         },
 
         orderBy: [
-
           {
             day: "asc",
           },
-
           {
             startTime: "asc",
           },
-
         ],
-
       }),
 
       prisma.timetable.count({
         where,
       }),
-
     ]);
 
     return {
-
       total,
-
       page,
-
       limit,
-
       totalPages: Math.ceil(total / limit),
-
       data,
-
     };
-
   }
 
-  // ======================================================
-  // GET BY ID
-  // ======================================================
-
   async findById(id: string) {
-
     return prisma.timetable.findUnique({
-
       where: {
         id,
       },
 
       include: {
-
-        teacher: true,
-
-        academicClass: true,
-
-        section: true,
-
-        subject: true,
-
-        school: true,
-
-      },
-
-    });
-
-  };
-    // ======================================================
-  // UPDATE
-  // ======================================================
-
-  async update(id: string, data: Partial<CreateTimetableDTO>) {
-    return prisma.timetable.update({
-      where: { id },
-      data,
-      include: {
         teacher: true,
         academicClass: true,
         section: true,
@@ -179,82 +119,113 @@ export class TimetableRepository {
     });
   }
 
-  // ======================================================
-  // DELETE
-  // ======================================================
+  async update(
+    id: string,
+    data: UpdateTimetableDTO,
+  ) {
+    return prisma.timetable.update({
+      where: {
+        id,
+      },
+
+      data,
+
+      include: {
+        teacher: true,
+        academicClass: true,
+        section: true,
+        subject: true,
+        school: true,
+      },
+    });
+  }
 
   async delete(id: string) {
     return prisma.timetable.delete({
-      where: { id },
+      where: {
+        id,
+      },
     });
   }
 
-  // ======================================================
-  // TEACHER TIMETABLE
-  // ======================================================
-
-  async findTeacherTimetable(teacherId: string) {
+  async findTeacherTimetable(
+    teacherId: string,
+  ) {
     return prisma.timetable.findMany({
-      where: { teacherId },
+      where: {
+        teacherId,
+      },
+
       include: {
         subject: true,
         academicClass: true,
         section: true,
       },
+
       orderBy: [
-        { day: "asc" },
-        { startTime: "asc" },
+        {
+          day: "asc",
+        },
+        {
+          startTime: "asc",
+        },
       ],
     });
   }
-
-  // ======================================================
-  // CLASS TIMETABLE
-  // ======================================================
 
   async findClassTimetable(classId: string) {
     return prisma.timetable.findMany({
-      where: { classId },
+      where: {
+        classId,
+      },
+
       include: {
         teacher: true,
         subject: true,
         section: true,
       },
+
       orderBy: [
-        { day: "asc" },
-        { startTime: "asc" },
+        {
+          day: "asc",
+        },
+        {
+          startTime: "asc",
+        },
       ],
     });
   }
 
-  // ======================================================
-  // SECTION TIMETABLE
-  // ======================================================
-
-  async findSectionTimetable(sectionId: string) {
+  async findSectionTimetable(
+    sectionId: string,
+  ) {
     return prisma.timetable.findMany({
-      where: { sectionId },
+      where: {
+        sectionId,
+      },
+
       include: {
         teacher: true,
         subject: true,
         academicClass: true,
       },
+
       orderBy: [
-        { day: "asc" },
-        { startTime: "asc" },
+        {
+          day: "asc",
+        },
+        {
+          startTime: "asc",
+        },
       ],
     });
   }
-
-  // ======================================================
-  // TEACHER CONFLICT
-  // ======================================================
 
   async teacherConflict(
     teacherId: string,
     day: DayOfWeek,
     startTime: string,
-    endTime: string
+    endTime: string,
   ) {
     return prisma.timetable.findFirst({
       where: {
@@ -266,16 +237,12 @@ export class TimetableRepository {
     });
   }
 
-  // ======================================================
-  // CLASS CONFLICT
-  // ======================================================
-
   async classConflict(
     classId: string,
     sectionId: string,
     day: DayOfWeek,
     startTime: string,
-    endTime: string
+    endTime: string,
   ) {
     return prisma.timetable.findFirst({
       where: {
@@ -288,15 +255,11 @@ export class TimetableRepository {
     });
   }
 
-  // ======================================================
-  // ROOM CONFLICT
-  // ======================================================
-
   async roomConflict(
     roomNo: string,
     day: DayOfWeek,
     startTime: string,
-    endTime: string
+    endTime: string,
   ) {
     return prisma.timetable.findFirst({
       where: {
@@ -308,28 +271,24 @@ export class TimetableRepository {
     });
   }
 
-  // ======================================================
-  // TODAY TIMETABLE
-  // ======================================================
-
   async today(day: DayOfWeek) {
     return prisma.timetable.findMany({
-      where: { day },
+      where: {
+        day,
+      },
+
       include: {
         teacher: true,
         subject: true,
         academicClass: true,
         section: true,
       },
+
       orderBy: {
         startTime: "asc",
       },
     });
   }
-
-  // ======================================================
-  // WEEKLY TIMETABLE
-  // ======================================================
 
   async weekly() {
     return prisma.timetable.findMany({
@@ -339,9 +298,14 @@ export class TimetableRepository {
         academicClass: true,
         section: true,
       },
+
       orderBy: [
-        { day: "asc" },
-        { startTime: "asc" },
+        {
+          day: "asc",
+        },
+        {
+          startTime: "asc",
+        },
       ],
     });
   }

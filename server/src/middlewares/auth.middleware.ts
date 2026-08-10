@@ -1,11 +1,9 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import type { Request, Response, NextFunction } from "express";
 
-interface JwtPayload {
-  id: string;
-  role: string;
-  schoolId: string;
-}
+import {
+  verifyToken,
+  type JwtPayload,
+} from "../utils/token";
 
 declare global {
   namespace Express {
@@ -36,10 +34,14 @@ export const authenticate = (
       ? authHeader.split(" ")[1]
       : authHeader;
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as JwtPayload;
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token is required."
+      });
+    }
+
+    const decoded = verifyToken(token);
 
     req.user = decoded;
 

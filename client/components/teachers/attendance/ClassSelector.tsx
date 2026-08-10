@@ -1,32 +1,76 @@
 "use client";
 
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { LoaderCircle, Search } from "lucide-react";
 
 import type { SelectedClass } from "@/app/dashboard/teacher/attendance/page";
+import {
+  getClasses,
+  type AcademicClass,
+} from "@/lib/api";
 
 interface ClassSelectorProps {
   onSelect: (selectedClass: SelectedClass) => void;
 }
 
-const classes = ["VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-const sections = ["A", "B", "C"];
+export default function ClassSelector({ onSelect }: ClassSelectorProps) {
+  const [classes, setClasses] = useState<AcademicClass[]>([]);
+  const [classId, setClassId] = useState("");
+  const [sectionId, setSectionId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-export default function ClassSelector({
-  onSelect,
-}: ClassSelectorProps) {
-  const [className, setClassName] = useState("");
-  const [section, setSection] = useState("");
+  useEffect(() => {
+    let active = true;
+
+    getClasses()
+      .then((data) => {
+        if (active) setClasses(data);
+      })
+      .catch((loadError: unknown) => {
+        if (active) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Unable to load classes.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const selectedAcademicClass = useMemo(
+    () => classes.find((item) => item.id === classId),
+    [classes, classId],
+  );
+
+  const handleClassChange = (value: string) => {
+    setClassId(value);
+    setSectionId("");
+  };
 
   const handleOpenStudents = () => {
-    if (!className || !section) {
-      window.alert("Please select class and section.");
+    const section = selectedAcademicClass?.sections.find(
+      (item) => item.id === sectionId,
+    );
+
+    if (!selectedAcademicClass || !section) {
+      setError("Please select class and section.");
       return;
     }
 
+    setError("");
     onSelect({
-      className,
-      section,
+      classId: selectedAcademicClass.id,
+      className: selectedAcademicClass.name,
+      sectionId: section.id,
+      sectionName: section.name,
     });
   };
 
@@ -43,15 +87,18 @@ export default function ClassSelector({
 
           <select
             id="className"
-            value={className}
-            onChange={(event) => setClassName(event.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-800 outline-none focus:border-blue-500"
+            value={classId}
+            disabled={loading}
+            onChange={(event) => handleClassChange(event.target.value)}
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-800 outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <option value="">Choose class</option>
+            <option value="">
+              {loading ? "Loading classes..." : "Choose class"}
+            </option>
 
             {classes.map((item) => (
-              <option key={item} value={item}>
-                Class {item}
+              <option key={item.id} value={item.id}>
+                {item.name}
               </option>
             ))}
           </select>
@@ -67,15 +114,16 @@ export default function ClassSelector({
 
           <select
             id="section"
-            value={section}
-            onChange={(event) => setSection(event.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-800 outline-none focus:border-blue-500"
+            value={sectionId}
+            disabled={!selectedAcademicClass}
+            onChange={(event) => setSectionId(event.target.value)}
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-slate-800 outline-none focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Choose section</option>
 
-            {sections.map((item) => (
-              <option key={item} value={item}>
-                Section {item}
+            {selectedAcademicClass?.sections.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
               </option>
             ))}
           </select>
@@ -85,13 +133,22 @@ export default function ClassSelector({
           <button
             type="button"
             onClick={handleOpenStudents}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3.5 font-semibold text-white transition hover:bg-blue-700"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3.5 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Search size={19} />
+            {loading ? (
+              <LoaderCircle className="animate-spin" size={19} />
+            ) : (
+              <Search size={19} />
+            )}
             Open Students
           </button>
         </div>
       </div>
+
+      {error ? (
+        <p className="mt-4 text-sm font-medium text-red-600">{error}</p>
+      ) : null}
     </div>
   );
 }

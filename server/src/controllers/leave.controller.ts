@@ -111,7 +111,7 @@ export class LeaveController {
 
     try {
 
-      const leave = await service.getById(req.params.id);
+      const leave = await service.getById((req.params.id as string));
 
       return res.json({
 
@@ -155,7 +155,7 @@ export class LeaveController {
 
       const leave = await service.update(
 
-        req.params.id,
+        (req.params.id as string),
 
         validatedData
 
@@ -193,7 +193,7 @@ export class LeaveController {
 
     try {
 
-      const result = await service.delete(req.params.id);
+      const result = await service.delete((req.params.id as string));
 
       return res.json(result);
 
@@ -221,7 +221,7 @@ export class LeaveController {
 
       const leave = await service.approve(
 
-        req.params.id,
+        (req.params.id as string),
 
         (req as any).user.id
 
@@ -261,7 +261,7 @@ export class LeaveController {
 
       const leave = await service.reject(
 
-        req.params.id,
+        (req.params.id as string),
 
         (req as any).user.id
 

@@ -1,10 +1,14 @@
-import { PrismaClient, Gender } from "@prisma/client";
+import {
+  PrismaClient,
+  Gender,
+  UserRole,
+} from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
-export async function seedTeachers(
-  schoolId: string
-) {
+export async function seedTeachers(schoolId: string) {
+  const password = await bcrypt.hash("Teacher@123", 10);
 
   const teachers = [
     {
@@ -17,7 +21,7 @@ export async function seedTeachers(
       qualification: "M.Sc Mathematics",
       experience: 5,
       joiningDate: new Date("2022-04-01"),
-      salary: 35000
+      salary: 35000,
     },
     {
       employeeId: "EMP002",
@@ -29,7 +33,7 @@ export async function seedTeachers(
       qualification: "M.A English",
       experience: 4,
       joiningDate: new Date("2021-04-01"),
-      salary: 34000
+      salary: 34000,
     },
     {
       employeeId: "EMP003",
@@ -41,7 +45,7 @@ export async function seedTeachers(
       qualification: "M.Sc Physics",
       experience: 8,
       joiningDate: new Date("2020-04-01"),
-      salary: 45000
+      salary: 45000,
     },
     {
       employeeId: "EMP004",
@@ -53,7 +57,7 @@ export async function seedTeachers(
       qualification: "M.Sc Chemistry",
       experience: 6,
       joiningDate: new Date("2021-04-01"),
-      salary: 40000
+      salary: 40000,
     },
     {
       employeeId: "EMP005",
@@ -65,29 +69,47 @@ export async function seedTeachers(
       qualification: "MCA",
       experience: 5,
       joiningDate: new Date("2022-04-01"),
-      salary: 42000
-    }
+      salary: 42000,
+    },
   ];
 
   for (const teacher of teachers) {
-
-    const exists = await prisma.teacher.findUnique({
-      where: {
-        employeeId: teacher.employeeId
-      }
+    const user = await prisma.user.upsert({
+      where: { email: teacher.email },
+      update: {
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        phone: teacher.phone,
+        password,
+        role: UserRole.TEACHER,
+        schoolId,
+        isActive: true,
+      },
+      create: {
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        email: teacher.email,
+        phone: teacher.phone,
+        password,
+        role: UserRole.TEACHER,
+        schoolId,
+      },
     });
 
-    if (exists) continue;
-
-    await prisma.teacher.create({
-      data: {
+    await prisma.teacher.upsert({
+      where: { employeeId: teacher.employeeId },
+      update: {
         ...teacher,
-        schoolId
-      }
+        schoolId,
+        userId: user.id,
+      },
+      create: {
+        ...teacher,
+        schoolId,
+        userId: user.id,
+      },
     });
 
     console.log(`✅ ${teacher.firstName} Created`);
-
   }
-
 }
